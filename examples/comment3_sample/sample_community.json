@@ -1,0 +1,42 @@
+[
+  {
+    "source": "0xaaaa000000000000000000000000000000000001",
+    "out": "0xaaaa000000000000000000000000000000000001",
+    "types": "external,internal,erc20,erc721",
+    "alpha": 0.15,
+    "beta": 0.8,
+    "epsilon": 0.001
+  },
+  {
+    "source": "0xaaaa000000000000000000000000000000000002",
+    "out": "0xaaaa000000000000000000000000000000000002",
+    "types": "external,internal,erc20,erc721",
+    "alpha": 0.15,
+    "beta": 0.8,
+    "epsilon": 0.001
+  },
+  {
+    "source": "0xaaaa000000000000000000000000000000000003",
+    "out": "0xaaaa000000000000000000000000000000000003",
+    "types": "external,internal,erc20,erc721",
+    "alpha": 0.15,
+    "beta": 0.8,
+    "epsilon": 0.001
+  },
+  {
+    "source": "0xcccc000000000000000000000000000000000001",
+    "out": "0xcccc000000000000000000000000000000000001",
+    "types": "external,internal,erc20,erc721",
+    "alpha": 0.15,
+    "beta": 0.8,
+    "epsilon": 0.001
+  },
+  {
+    "source": "0xcccc000000000000000000000000000000000002",
+    "out": "0xcccc000000000000000000000000000000000002",
+    "types": "external,internal,erc20,erc721",
+    "alpha": 0.15,
+    "beta": 0.8,
+    "epsilon": 0.001
+  }
+]

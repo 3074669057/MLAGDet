@@ -1,0 +1,146 @@
+[
+    {
+        "name": "高度不平衡的交易模式",
+        "condition": "node_features.get('out_degree', 0) > params.get('out_degree_threshold', 2) + 2 * self.threshold and node_features.get('in_degree', 0) < params.get('in_degree_threshold', 1) + 0.5 * (1 - self.threshold) and node_features.get('balance', 0) < params.get('balance_threshold', 0)",
+        "weight": 3.0,
+        "risk_level": "high",
+        "params": {
+            "out_degree_threshold": 3,
+            "in_degree_threshold": 1,
+            "balance_threshold": 0
+        }
+    },
+    {
+        "name": "循环交易模式",
+        "condition": "any(tx['type'] == 'out' and any(otx['type'] == 'in' and otx['from'] == tx['to'] and abs(float(otx['timestamp']) - float(tx['timestamp'])) < params.get('time_window', 86400) for otx in node_features.get('transactions', [])) for tx in node_features.get('transactions', []) )",
+        "weight": 2.0,
+        "risk_level": "high",
+        "params": {
+            "time_window": 36000
+        }
+    },
+    {
+        "name": "资金分层转移",
+        "condition": "node_features.get('in_tx_count', 0) > params.get('in_tx_threshold', 5) and node_features.get('avg_in_amount', 0) < params.get('avg_in_threshold', 1e17) and node_features.get('max_out_amount', 0) > node_features.get('total_in', 0) * params.get('out_ratio', 0.8)",
+        "weight": 2.0,
+        "risk_level": "high",
+        "params": {
+            "in_tx_threshold": 5,
+            "avg_in_threshold": 1e17,
+            "out_ratio": 0.8
+        }
+    },
+    {
+        "name": "大额交易后分散转出",
+        "condition": "node_features.get('max_out_amount', 0) > params.get('amount_threshold', 5e19) * self.threshold and node_features.get('out_degree', 0) > node_features.get('in_degree', 0) * (params.get('degree_factor', 3) - 2 * self.threshold)",
+        "weight": 2.5,
+        "risk_level": "medium_high",
+        "params": {
+            "amount_threshold": 1e19,
+            "degree_factor": 3
+        }
+    },
+    {
+        "name": "休眠后突然活跃",
+        "condition": "len(node_features.get('transactions', [])) > params.get('tx_count_threshold', 10) and (max(float(tx['timestamp']) for tx in node_features.get('transactions', [])) - min(float(tx['timestamp']) for tx in node_features.get('transactions', []))) > params.get('total_time_span', 30)*86400 and any(float(tx['timestamp']) - float(node_features.get('transactions', [])[i-1]['timestamp']) > params.get('inactive_span', 14)*86400 for i, tx in enumerate(node_features.get('transactions', [])) if i > 0)",
+        "weight": 1.5,
+        "risk_level": "medium_high",
+        "params": {
+            "tx_count_threshold": 15,
+            "total_time_span": 30,
+            "inactive_span": 14,
+            "total_out_threshold": 1e19
+        }
+    },
+    {
+        "name": "交易金额变化小",
+        "condition": "node_features.get('out_amount_variation', 1) < params.get('variation_threshold', 0.3) - 0.2 * self.threshold and node_features.get('out_tx_count', 0) > params.get('tx_count_threshold', 2) + self.threshold",
+        "weight": 2.5,
+        "risk_level": "medium",
+        "params": {
+            "variation_threshold": 0.3,
+            "tx_count_threshold": 2
+        }
+    },
+    {
+        "name": "大量整额交易",
+        "condition": "node_features.get('round_amount_ratio', 0) > params.get('ratio_threshold', 0.3) + 0.3 * self.threshold and node_features.get('out_tx_count', 0) > params.get('tx_count_threshold', 2) + self.threshold",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "ratio_threshold": 0.3,
+            "tx_count_threshold": 2
+        }
+    },
+    {
+        "name": "高频小额交易",
+        "condition": "node_features.get('tx_frequency', 0) > params.get('frequency_threshold', 30) * self.threshold and node_features.get('avg_out_amount', 0) < params.get('amount_threshold', 1e18) * (1 - self.threshold)",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "frequency_threshold": 60,
+            "amount_threshold": 1e20
+        }
+    },
+    {
+        "name": "高风险网络结构",
+        "condition": "node_features.get('clustering', 0) > params.get('clustering_threshold', 0.7) * self.threshold and node_features.get('pagerank', 0) > params.get('pagerank_threshold', 0.05) * self.threshold",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "clustering_threshold": 0.7,
+            "pagerank_threshold": 0.05
+        }
+    },
+    {
+        "name": "交易时间规律",
+        "condition": "node_features.get('time_diff_variation', 1) < params.get('variation_threshold', 0.15) and node_features.get('tx_count', 0) > params.get('tx_count_threshold', 10)",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "variation_threshold": 0.15,
+            "tx_count_threshold": 10
+        }
+    },
+    {
+        "name": "高转出转入比",
+        "condition": "node_features.get('degree_ratio', 0) > params.get('ratio_threshold', 3) * self.threshold and node_features.get('total_out', 0) > params.get('amount_threshold', 1e19) * self.threshold",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "ratio_threshold": 5,
+            "amount_threshold": 1e21
+        }
+    },
+    {
+        "name": "低聚类高介数",
+        "condition": "node_features.get('clustering', 0) < params.get('clustering_threshold', 0.2) * (1 - self.threshold) and node_features.get('pagerank', 0) > params.get('pagerank_threshold', 0.15) * self.threshold",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "clustering_threshold": 0.2,
+            "pagerank_threshold": 0.15
+        }
+    },
+    {
+        "name": "交易金额接近阈值",
+        "condition": "(node_features.get('avg_out_amount', 0) > params.get('lower_threshold', 9e17) * self.threshold and node_features.get('avg_out_amount', 0) < params.get('upper_threshold', 1.1e18) * self.threshold) and node_features.get('out_tx_count', 0) > params.get('tx_count_threshold', 5) * self.threshold",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "lower_threshold": 9e17,
+            "upper_threshold": 1.1e18,
+            "tx_count_threshold": 5
+        }
+    },
+    {
+        "name": "交易对手分散",
+        "condition": "node_features.get('out_degree', 0) > params.get('degree_threshold', 10) * self.threshold and (node_features.get('out_tx_count', 0) / node_features.get('out_degree', 1)) < params.get('tx_per_degree_threshold', 1.5) * (1 - self.threshold)",
+        "weight": 1.0,
+        "risk_level": "medium",
+        "params": {
+            "degree_threshold": 10,
+            "tx_per_degree_threshold": 1.5
+        }
+    }
+]
